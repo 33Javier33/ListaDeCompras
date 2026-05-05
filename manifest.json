@@ -1,0 +1,25 @@
+{
+    "name": "LISTA Pro",
+    "short_name": "Lista Pro",
+    "description": "Lista de compras inteligente con sugeridos y temas",
+    "start_url": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f0f4ff",
+    "theme_color": "#0057bd",
+    "lang": "es",
+    "icons": [
+        {
+            "src": "icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

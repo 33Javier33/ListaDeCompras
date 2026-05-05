@@ -1,0 +1,134 @@
+/* ── Temas (variables CSS) ────────────────────────────────────────── */
+:root {
+    --p: #0057bd;  --p-rgb: 0,87,189;
+    --bg: #f0f4ff; --card: #ffffff;
+    --fg: #1e2d42; --fg-m: rgba(30,45,66,.42);
+    --bdr: rgba(0,87,189,.09);
+}
+[data-theme="green"]  { --p:#16a34a; --p-rgb:22,163,74;   --bg:#f0fdf4; --card:#fff; --fg:#14532d; --fg-m:rgba(20,83,45,.42);   --bdr:rgba(22,163,74,.1);   }
+[data-theme="purple"] { --p:#7c3aed; --p-rgb:124,58,237;  --bg:#faf5ff; --card:#fff; --fg:#3b0764; --fg-m:rgba(59,7,100,.42);   --bdr:rgba(124,58,237,.1);  }
+[data-theme="amber"]  { --p:#b45309; --p-rgb:180,83,9;    --bg:#fffbeb; --card:#fff; --fg:#451a03; --fg-m:rgba(69,26,3,.42);    --bdr:rgba(180,83,9,.1);    }
+[data-theme="pink"]   { --p:#be185d; --p-rgb:190,24,93;   --bg:#fdf2f8; --card:#fff; --fg:#500724; --fg-m:rgba(80,7,36,.42);    --bdr:rgba(190,24,93,.1);   }
+
+/* Modo oscuro base */
+.dark { --bg:#0f172a; --card:#1e293b; --fg:#e2e8f0; --fg-m:rgba(226,232,240,.4); --bdr:rgba(255,255,255,.06); }
+/* Modo oscuro por tema */
+.dark[data-theme="green"]  { --bg:#052e16; --card:#0f3d20; }
+.dark[data-theme="purple"] { --bg:#0d0720; --card:#1a0d38; }
+.dark[data-theme="amber"]  { --bg:#1c0a00; --card:#2d1500; }
+.dark[data-theme="pink"]   { --bg:#1f0617; --card:#360c2b; }
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    transition: background .3s, color .3s;
+}
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Tokens de componente ─────────────────────────────────────────── */
+.t-card      { background: var(--card); border: 1px solid var(--bdr); }
+.t-bg        { background: var(--bg); }
+.t-btn       { background: var(--p); color: #fff; }
+.t-btn-soft  { background: rgba(var(--p-rgb),.12); color: var(--p); }
+.t-accent    { color: var(--p); }
+.t-muted     { color: var(--fg-m); }
+.t-text      { color: var(--fg); }
+.t-border    { border-color: var(--bdr); }
+.t-shadow    { box-shadow: 0 8px 24px rgba(var(--p-rgb),.28); }
+.t-shadow-sm { box-shadow: 0 3px 12px rgba(var(--p-rgb),.16); }
+.t-ring:focus-within { box-shadow: 0 0 0 2px rgba(var(--p-rgb),.38); }
+
+/* ── Items de lista ───────────────────────────────────────────────── */
+.checked-item { opacity: .4; filter: grayscale(.65); }
+.item-in  { animation: itemIn  .2s ease; }
+.item-out { animation: itemOut .18s ease forwards; }
+@keyframes itemIn  { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+@keyframes itemOut { from { opacity:1; } to { opacity:0; transform:scale(.95); } }
+
+/* ── Modales ──────────────────────────────────────────────────────── */
+.modal-bg { background: rgba(0,0,0,.52); backdrop-filter: blur(10px); }
+.modal-in { animation: mIn .25s cubic-bezier(.4,0,.2,1); }
+@keyframes mIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Formularios ──────────────────────────────────────────────────── */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+input::placeholder, select option:disabled { color: var(--fg-m); }
+select { color: var(--fg); background: var(--bg); }
+select option { background: var(--card); color: var(--fg); }
+
+/* ── Drag & Drop ──────────────────────────────────────────────────── */
+.drag-handle {
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.drag-handle:active { cursor: grabbing; }
+.sortable-ghost  { opacity: .3; background: rgba(var(--p-rgb),.08) !important; border-radius: 2rem; }
+.sortable-chosen { opacity: .92; }
+.sortable-drag   { box-shadow: 0 14px 40px rgba(var(--p-rgb),.28) !important; border-radius: 2rem; }
+
+/* ── Interacción táctil ───────────────────────────────────────────── */
+.press { transition: transform .1s; -webkit-tap-highlight-color: transparent; }
+.press:active { transform: scale(.9) !important; }
+
+/* ── Divisor completados ──────────────────────────────────────────── */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 2px 10px;
+    font-size: .6rem;
+    font-weight: 900;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--fg-m);
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--bdr);
+}
+
+/* ── Selector de temas ────────────────────────────────────────────── */
+.tdot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.tdot:active { transform: scale(.82) !important; }
+.tdot.on {
+    box-shadow: 0 0 0 2px var(--card), 0 0 0 5px currentColor;
+    transform: scale(1.1) !important;
+}
+
+/* ── Botón ghost temático (Modificar/Nuevo) ───────────────────────── */
+.btn-ghost {
+    background: var(--bg);
+    color: var(--p);
+    transition: background .15s, color .15s;
+}
+.btn-ghost:active { background: var(--p) !important; color: #fff !important; }
+
+/* ── Header y nav con overlay semitransparente ────────────────────── */
+.header-overlay {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.nav-overlay {
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
