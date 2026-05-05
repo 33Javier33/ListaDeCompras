@@ -1,4 +1,4 @@
-const CACHE = 'lista-pro-v2';
+const CACHE = 'lista-pro-v3';
 
 const LOCAL_ASSETS = [
     './',
