@@ -563,12 +563,16 @@ const app = {
                 </div>
             </div>
 
-            ${!inBase ? `
-            <button onclick="app.saveItemToBase(${item.id})" title="Guardar en sugeridos"
-                class="w-9 h-9 rounded-xl flex items-center justify-center press t-btn-soft flex-shrink-0">
-                <span class="material-symbols-outlined text-sm t-accent"
-                    style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20">bookmark</span>
-            </button>` : ''}
+            ${inBase
+                ? `<div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 t-btn-soft" title="Ya en sugeridos">
+                       <span class="material-symbols-outlined text-sm t-accent">bookmark</span>
+                   </div>`
+                : `<button onclick="app.saveItemToBase(${item.id})" title="Guardar en sugeridos"
+                       class="w-9 h-9 rounded-xl flex items-center justify-center press t-btn-soft flex-shrink-0">
+                       <span class="material-symbols-outlined text-sm t-accent"
+                           style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20">bookmark</span>
+                   </button>`
+            }
 
             <button onclick="app.removeItem(${item.id})"
                 class="w-9 h-9 rounded-xl flex items-center justify-center press flex-shrink-0 t-muted"
@@ -611,14 +615,24 @@ const app = {
 
     renderDropdown() {
         const dd = document.getElementById('dropdown');
+
+        if (this.base.length === 0) {
+            dd.innerHTML = '<option value="">Base vacía...</option>';
+            document.getElementById('base-count').textContent = '0 en base';
+            return;
+        }
+
         const available = this.base
             .filter(b => !this.products.some(p => p.name.toLowerCase() === b.name.toLowerCase()))
             .sort((a, b) => a.name.localeCompare(b.name));
 
-        dd.innerHTML = available.length === 0
-            ? '<option value="">Sin más disponibles...</option>'
-            : '<option value="">Seleccionar...</option>';
+        const inList = this.base
+            .filter(b => this.products.some(p => p.name.toLowerCase() === b.name.toLowerCase()))
+            .sort((a, b) => a.name.localeCompare(b.name));
 
+        dd.innerHTML = '<option value="">Seleccionar para añadir...</option>';
+
+        // Ítems disponibles para añadir
         available.forEach(item => {
             const i   = this.base.indexOf(item);
             const opt = document.createElement('option');
@@ -629,8 +643,22 @@ const app = {
             dd.appendChild(opt);
         });
 
+        // Ítems ya en la lista activa (deshabilitados, solo visibles)
+        if (inList.length > 0) {
+            const group = document.createElement('optgroup');
+            group.label = '── Ya en tu lista ──';
+            inList.forEach(item => {
+                const opt     = document.createElement('option');
+                opt.disabled  = true;
+                opt.textContent = `✓  ${item.name}`;
+                group.appendChild(opt);
+            });
+            dd.appendChild(group);
+        }
+
+        const total = this.base.length;
         document.getElementById('base-count').textContent =
-            available.length === 1 ? '1 disponible' : `${available.length} disponibles`;
+            total === 1 ? '1 en base' : `${total} en base`;
     },
 
     save() {
