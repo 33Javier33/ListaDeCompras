@@ -10,23 +10,16 @@
     <meta name="apple-mobile-web-app-title" content="Lista Pro"/>
     <title>LISTA Pro</title>
 
-    <!-- PWA -->
     <link rel="manifest" href="manifest.json"/>
     <link rel="apple-touch-icon" href="icon-192x192.png"/>
-
-    <!-- CSS -->
     <link rel="stylesheet" href="styles.css"/>
-
-    <!-- Fuentes y Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────
-     MODAL: Producto de la base
-──────────────────────────────────────────────────────────────── -->
+<!-- ── MODAL: Producto de la base ─────────────────────────────────── -->
 <div id="modal-base" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 modal-bg">
     <div class="t-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-in t-text">
         <h2 id="modal-base-title" class="text-2xl font-black mb-6 t-accent">Base de Datos</h2>
@@ -38,24 +31,55 @@
                 class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring">
         </div>
         <div class="grid gap-3 mt-8">
-            <button id="m-save" class="w-full py-4 rounded-2xl font-black text-white t-btn t-shadow press">
-                Guardar
-            </button>
+            <button id="m-save" class="w-full py-4 rounded-2xl font-black text-white t-btn t-shadow press">Guardar</button>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="closeModal('modal-base')" class="py-4 rounded-2xl font-bold t-muted t-bg text-xs press">
-                    Cancelar
-                </button>
-                <button id="m-del" class="py-4 rounded-2xl font-bold text-red-500 bg-red-500/10 text-xs press">
-                    Eliminar
-                </button>
+                <button onclick="closeModal('modal-base')" class="py-4 rounded-2xl font-bold t-muted t-bg text-xs press">Cancelar</button>
+                <button id="m-del" class="py-4 rounded-2xl font-bold text-red-500 bg-red-500/10 text-xs press">Eliminar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ─────────────────────────────────────────────────────────────
-     MODAL: Ajustes
-──────────────────────────────────────────────────────────────── -->
+<!-- ── MODAL: Archivar lista ──────────────────────────────────────── -->
+<div id="modal-archive" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 modal-bg">
+    <div class="t-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-in t-text">
+        <h2 class="text-2xl font-black mb-1 t-accent">Archivar Lista</h2>
+        <p class="text-xs t-muted mb-5">Guarda una copia en el historial y limpia la lista.</p>
+
+        <!-- Total de la compra -->
+        <div class="t-btn-soft rounded-2xl p-4 mb-5 flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-widest t-muted">Total comprado</p>
+                <p id="archive-total" class="text-2xl font-black t-accent mt-0.5">$0</p>
+            </div>
+            <span class="material-symbols-outlined text-3xl t-accent">receipt_long</span>
+        </div>
+
+        <!-- Nota -->
+        <div class="mb-6">
+            <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-2">Nota del viaje</p>
+            <textarea id="archive-note" rows="3"
+                placeholder="Ej: Súper Líder, todo salió bien..."
+                class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring resize-none text-sm"
+                style="color:var(--fg)"></textarea>
+        </div>
+
+        <div class="grid gap-2">
+            <button id="btn-archive-save"
+                class="w-full py-4 rounded-2xl font-black text-white t-btn t-shadow press">
+                Guardar y Limpiar
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeModal('modal-archive')"
+                    class="py-4 rounded-2xl font-bold t-muted t-bg text-xs press">Cancelar</button>
+                <button id="btn-archive-clear"
+                    class="py-4 rounded-2xl font-bold text-red-500 bg-red-500/10 text-xs press">Solo Limpiar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODAL: Ajustes ─────────────────────────────────────────────── -->
 <div id="modal-settings" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 modal-bg">
     <div class="t-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-in t-text">
         <div class="flex items-center justify-between mb-6">
@@ -64,8 +88,6 @@
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-
-        <!-- Selector de temas -->
         <div class="t-bg rounded-2xl p-4 mb-4">
             <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-3">Tema de Color</p>
             <div class="flex items-center gap-3">
@@ -83,7 +105,6 @@
                 </button>
             </div>
         </div>
-
         <div class="space-y-3">
             <button onclick="app.shareWA()" class="w-full flex items-center gap-4 p-4 bg-green-500/10 text-green-700 rounded-2xl font-bold press text-[10px] uppercase tracking-[.2em]">
                 <span class="material-symbols-outlined text-2xl">share</span> Compartir WhatsApp
@@ -99,9 +120,7 @@
     </div>
 </div>
 
-<!-- ─────────────────────────────────────────────────────────────
-     Header
-──────────────────────────────────────────────────────────────── -->
+<!-- ── Header ─────────────────────────────────────────────────────── -->
 <header class="fixed top-0 w-full z-50 header-overlay" style="border-bottom:1px solid var(--bdr)">
     <div class="max-w-2xl mx-auto flex items-center justify-between px-6 h-20">
         <h1 class="text-xl font-black tracking-tighter t-accent italic">LISTA PRO</h1>
@@ -111,94 +130,120 @@
     </div>
 </header>
 
-<!-- ─────────────────────────────────────────────────────────────
-     Contenido Principal
-──────────────────────────────────────────────────────────────── -->
+<!-- ── Main ───────────────────────────────────────────────────────── -->
 <main class="pt-28 pb-36 px-5 max-w-2xl mx-auto">
 
-    <!-- Entrada rápida -->
-    <section class="mb-8">
-        <div class="flex gap-2">
-            <div class="t-card rounded-2xl p-2 flex items-center gap-2 flex-1 t-ring transition-all">
-                <span class="material-symbols-outlined ml-2 t-muted text-xl"
-                    style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">add_shopping_cart</span>
-                <input id="quick-input" type="text" autocomplete="off"
-                    placeholder="Añadir producto..."
-                    class="bg-transparent border-none focus:ring-0 w-full font-bold text-sm t-text"
-                    style="color:var(--fg)">
+    <!-- ═══ VISTA: LISTA ACTUAL ═══════════════════════════════════ -->
+    <div id="view-lista">
+
+        <!-- Entrada rápida -->
+        <section class="mb-8">
+            <div class="flex gap-2">
+                <div class="t-card rounded-2xl p-2 flex items-center gap-2 flex-1 t-ring transition-all">
+                    <span class="material-symbols-outlined ml-2 t-muted text-xl"
+                        style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">add_shopping_cart</span>
+                    <input id="quick-input" type="text" autocomplete="off"
+                        placeholder="Añadir producto..."
+                        class="bg-transparent border-none focus:ring-0 w-full font-bold text-sm t-text"
+                        style="color:var(--fg)">
+                </div>
+                <button id="btn-save-base" title="Guardar en sugeridos"
+                    class="t-card rounded-2xl flex items-center justify-center t-shadow-sm press"
+                    style="width:3.25rem;height:3.25rem">
+                    <span id="icon-save-base" class="material-symbols-outlined t-accent"
+                        style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">bookmark</span>
+                </button>
+                <button id="btn-quick-add"
+                    class="w-14 h-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
+                    <span class="material-symbols-outlined">add</span>
+                </button>
             </div>
-            <!-- Guardar en sugeridos -->
-            <button id="btn-save-base" title="Guardar en sugeridos"
-                class="t-card rounded-2xl flex items-center justify-center t-shadow-sm press"
-                style="width:3.25rem;height:3.25rem">
-                <span id="icon-save-base" class="material-symbols-outlined t-accent"
-                    style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">bookmark</span>
-            </button>
-            <!-- Añadir a lista -->
-            <button id="btn-quick-add"
-                class="w-14 h-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
-                <span class="material-symbols-outlined">add</span>
-            </button>
-        </div>
-        <p id="save-feedback" class="hidden text-[10px] font-black t-accent uppercase tracking-widest mt-2 px-1">
-            ✓ Guardado en sugeridos
-        </p>
-    </section>
+            <p id="save-feedback" class="hidden text-[10px] font-black t-accent uppercase tracking-widest mt-2 px-1">
+                ✓ Guardado en sugeridos
+            </p>
+        </section>
 
-    <!-- Productos Sugeridos -->
-    <section class="mb-8 t-card rounded-[2.5rem] p-5">
-        <div class="flex items-center justify-between mb-4 px-1">
-            <p class="text-[10px] font-black t-accent uppercase tracking-widest">Productos Sugeridos</p>
-            <span id="base-count" class="text-[10px] font-black t-accent t-btn-soft px-2 py-1 rounded-full">0</span>
-        </div>
-        <div class="flex gap-2 mb-4">
-            <select id="dropdown"
-                class="flex-1 border-none rounded-2xl p-3.5 font-bold appearance-none cursor-pointer text-sm"
-                style="color:var(--fg);background:var(--bg)">
-            </select>
-            <button id="btn-add-base"
-                class="w-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
-                <span class="material-symbols-outlined">playlist_add</span>
-            </button>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-            <button onclick="openBaseModal('edit')"
-                class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">
-                Modificar
-            </button>
-            <button onclick="openBaseModal('new')"
-                class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">
-                Nuevo
-            </button>
-        </div>
-    </section>
+        <!-- Productos Sugeridos -->
+        <section class="mb-8 t-card rounded-[2.5rem] p-5">
+            <div class="flex items-center justify-between mb-4 px-1">
+                <p class="text-[10px] font-black t-accent uppercase tracking-widest">Productos Sugeridos</p>
+                <span id="base-count" class="text-[10px] font-black t-accent t-btn-soft px-2 py-1 rounded-full">0</span>
+            </div>
+            <div class="flex gap-2 mb-4">
+                <select id="dropdown"
+                    class="flex-1 border-none rounded-2xl p-3.5 font-bold appearance-none cursor-pointer text-sm"
+                    style="color:var(--fg);background:var(--bg)">
+                </select>
+                <button id="btn-add-base"
+                    class="w-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
+                    <span class="material-symbols-outlined">playlist_add</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="openBaseModal('edit')" class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">Modificar</button>
+                <button onclick="openBaseModal('new')"  class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">Nuevo</button>
+            </div>
+        </section>
 
-    <!-- Lista de compras -->
-    <div id="list-unchecked" class="space-y-3"></div>
-    <div id="list-divider"   class="hidden"></div>
-    <div id="list-checked"   class="space-y-3"></div>
+        <!-- Lista de compras -->
+        <div id="list-unchecked" class="space-y-3"></div>
+        <div id="list-divider"   class="hidden"></div>
+        <div id="list-checked"   class="space-y-3"></div>
+
+    </div><!-- /view-lista -->
+
+    <!-- ═══ VISTA: HISTORIAL ════════════════════════════════════════ -->
+    <div id="view-historial" class="hidden">
+
+        <div class="flex items-center justify-between mb-6 px-1">
+            <h2 class="text-lg font-black t-accent">Compras Anteriores</h2>
+            <span id="history-count" class="text-[10px] font-black t-accent t-btn-soft px-3 py-1 rounded-full">0</span>
+        </div>
+
+        <!-- Estado vacío -->
+        <div id="history-empty" class="hidden text-center py-16 px-4">
+            <span class="material-symbols-outlined t-muted block mb-3"
+                style="font-size:3.5rem;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 48">folder_open</span>
+            <p class="font-black t-muted">Aún no hay compras archivadas</p>
+            <p class="text-xs t-muted mt-1">Archivá tu lista con el botón central</p>
+        </div>
+
+        <!-- Tarjetas de historial -->
+        <div id="history-list" class="space-y-4"></div>
+
+    </div><!-- /view-historial -->
 
 </main>
 
-<!-- ─────────────────────────────────────────────────────────────
-     Nav inferior
-──────────────────────────────────────────────────────────────── -->
+<!-- ── Nav inferior (4 ítems) ─────────────────────────────────────── -->
 <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-24 z-50 nav-overlay"
     style="border-top:1px solid var(--bdr)">
-    <div class="flex flex-col items-center t-accent">
-        <span class="material-symbols-outlined text-3xl">format_list_bulleted</span>
-    </div>
-    <button id="btn-clear"
-        class="w-16 h-16 rounded-[2rem] flex items-center justify-center text-white -translate-y-6 press t-shadow t-btn">
-        <span class="material-symbols-outlined text-3xl">delete_sweep</span>
+
+    <button id="nav-lista" onclick="app.switchView('lista')"
+        class="flex flex-col items-center gap-0.5 t-accent press nav-tab-active">
+        <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+        <span class="text-[9px] font-black uppercase tracking-wider">Lista</span>
     </button>
+
+    <button onclick="app.openArchiveModal()"
+        class="w-14 h-14 rounded-[1.5rem] flex items-center justify-center t-shadow press t-btn -translate-y-5">
+        <span class="material-symbols-outlined text-2xl">archive</span>
+    </button>
+
+    <button id="nav-historial" onclick="app.switchView('historial')"
+        class="flex flex-col items-center gap-0.5 t-muted press">
+        <span class="material-symbols-outlined text-2xl">folder_open</span>
+        <span class="text-[9px] font-black uppercase tracking-wider">Historial</span>
+    </button>
+
     <button onclick="openModal('modal-settings')"
-        class="flex flex-col items-center t-muted press">
-        <span class="material-symbols-outlined text-3xl">settings</span>
+        class="flex flex-col items-center gap-0.5 t-muted press">
+        <span class="material-symbols-outlined text-2xl">settings</span>
+        <span class="text-[9px] font-black uppercase tracking-wider">Ajustes</span>
     </button>
+
 </nav>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 <script src="app.js"></script>
 </body>

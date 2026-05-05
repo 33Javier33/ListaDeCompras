@@ -21,6 +21,7 @@ const app = {
         { name:'Pan Molde',    price:2100 },
         { name:'Mantequilla',  price:1800 },
     ],
+    history:  JSON.parse(localStorage.getItem('v9_history')) || [],
     editIdx:  null,
     sortable: null,
 
@@ -59,6 +60,16 @@ const app = {
             dot.onclick = () => this.applyTheme(dot.dataset.t, true);
         });
 
+        // Archivar – guardar
+        document.getElementById('btn-archive-save').onclick = () => this.archiveList(true);
+        document.getElementById('btn-archive-clear').onclick = () => {
+            if (confirm('¿Limpiar la lista sin guardar en historial?')) {
+                this.products = [];
+                this.renderAll();
+                closeModal('modal-archive');
+            }
+        };
+
         // Modal base – guardar
         document.getElementById('m-save').onclick = () => {
             const n = document.getElementById('m-name').value.trim();
@@ -83,6 +94,156 @@ const app = {
                 closeModal('modal-base');
             }
         };
+    },
+
+    // ── Vistas (Lista / Historial) ─────────────────────────────────
+    switchView(view) {
+        const isLista = view === 'lista';
+        document.getElementById('view-lista').classList.toggle('hidden', !isLista);
+        document.getElementById('view-historial').classList.toggle('hidden', isLista);
+        document.getElementById('nav-lista').classList.toggle('nav-tab-active', isLista);
+        document.getElementById('nav-lista').classList.toggle('t-muted', !isLista);
+        document.getElementById('nav-historial').classList.toggle('nav-tab-active', !isLista);
+        document.getElementById('nav-historial').classList.toggle('t-muted', isLista);
+        if (!isLista) this.renderHistory();
+    },
+
+    // ── Archivar lista ─────────────────────────────────────────────
+    openArchiveModal() {
+        if (this.products.length === 0) {
+            alert('La lista está vacía, no hay nada que archivar.');
+            return;
+        }
+        const total = this.products
+            .filter(p => p.checked)
+            .reduce((s, p) => s + (p.price || 0), 0);
+        document.getElementById('archive-total').textContent =
+            new Intl.NumberFormat('es-CL', {
+                style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
+            }).format(total);
+        document.getElementById('archive-note').value = '';
+        openModal('modal-archive');
+        setTimeout(() => document.getElementById('archive-note').focus(), 80);
+    },
+
+    archiveList(save) {
+        if (!save) return;
+        const note  = document.getElementById('archive-note').value.trim();
+        const total = this.products
+            .filter(p => p.checked)
+            .reduce((s, p) => s + (p.price || 0), 0);
+
+        this.history.unshift({
+            id:    Date.now(),
+            date:  new Date().toISOString(),
+            note:  note || 'Sin nota',
+            total,
+            items: JSON.parse(JSON.stringify(this.products)),
+        });
+        this.saveHistory();
+        this.products = [];
+        this.renderAll();
+        closeModal('modal-archive');
+    },
+
+    saveHistory() {
+        localStorage.setItem('v9_history', JSON.stringify(this.history));
+    },
+
+    // ── Historial: render ──────────────────────────────────────────
+    renderHistory() {
+        const list  = document.getElementById('history-list');
+        const empty = document.getElementById('history-empty');
+        const count = document.getElementById('history-count');
+
+        const n = this.history.length;
+        count.textContent = n === 1 ? '1 compra' : `${n} compras`;
+
+        if (n === 0) {
+            list.classList.add('hidden');
+            empty.classList.remove('hidden');
+            return;
+        }
+        list.classList.remove('hidden');
+        empty.classList.add('hidden');
+        list.innerHTML = '';
+
+        this.history.forEach(entry => {
+            const date = new Intl.DateTimeFormat('es-CL', {
+                weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',
+            }).format(new Date(entry.date));
+
+            const totalFmt = new Intl.NumberFormat('es-CL', {
+                style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
+            }).format(entry.total);
+
+            const bought  = entry.items.filter(i => i.checked).length;
+            const pending = entry.items.filter(i => !i.checked).length;
+
+            const card = document.createElement('div');
+            card.className = 't-card rounded-[2rem] overflow-hidden';
+            card.innerHTML = `
+                <button class="w-full p-5 text-left press"
+                    onclick="app.toggleHistoryCard(${entry.id})">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-1">${date}</p>
+                            <h3 class="font-black text-sm t-text leading-snug">${entry.note}</h3>
+                            <p class="text-xs t-muted mt-1">
+                                ${entry.items.length} productos
+                                ${bought  > 0 ? `· <span class="t-accent">${bought} comprados</span>` : ''}
+                                ${pending > 0 ? `· ${pending} pendientes` : ''}
+                            </p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="font-black text-xl t-accent">${totalFmt}</p>
+                            <span id="chev-${entry.id}" class="material-symbols-outlined text-base t-muted mt-1 block"
+                                style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20">expand_more</span>
+                        </div>
+                    </div>
+                </button>
+
+                <div id="hbody-${entry.id}" class="history-card-body">
+                    <div class="px-5 pb-2">
+                        <div class="border-t mb-3" style="border-color:var(--bdr)"></div>
+                        ${entry.items.map(item => `
+                            <div class="history-item-row ${item.checked ? '' : 'opacity-50'}">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-base ${item.checked ? 't-accent' : 't-muted'}"
+                                        style="font-size:1rem">${item.checked ? 'check_circle' : 'radio_button_unchecked'}</span>
+                                    <span class="font-bold t-text text-sm">${item.name}</span>
+                                </div>
+                                <span class="font-black t-accent text-xs">
+                                    ${item.price > 0 ? '$' + item.price.toLocaleString('es-CL') : '—'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="px-5 pb-5 pt-2">
+                        <button onclick="app.deleteHistory(${entry.id})"
+                            class="w-full py-3 rounded-xl font-bold text-red-500 bg-red-500/10 text-xs press">
+                            Eliminar del historial
+                        </button>
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    },
+
+    toggleHistoryCard(id) {
+        const body  = document.getElementById(`hbody-${id}`);
+        const chev  = document.getElementById(`chev-${id}`);
+        const isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        chev.textContent = isOpen ? 'expand_more' : 'expand_less';
+    },
+
+    deleteHistory(id) {
+        if (!confirm('¿Eliminar esta compra del historial?')) return;
+        this.history = this.history.filter(h => h.id !== id);
+        this.saveHistory();
+        this.renderHistory();
     },
 
     // ── Añadir desde input rápido ──────────────────────────────────

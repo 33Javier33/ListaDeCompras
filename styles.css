@@ -121,6 +121,28 @@ select option { background: var(--card); color: var(--fg); }
 }
 .btn-ghost:active { background: var(--p) !important; color: #fff !important; }
 
+/* ── Nav tabs ─────────────────────────────────────────────────────── */
+.nav-tab-active { color: var(--p) !important; }
+
+/* ── Historial: tarjetas ──────────────────────────────────────────── */
+.history-card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+}
+.history-card-body.open {
+    max-height: 2000px;
+}
+.history-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .35rem 0;
+    border-bottom: 1px solid var(--bdr);
+    font-size: .8rem;
+}
+.history-item-row:last-child { border-bottom: none; }
+
 /* ── Header y nav con overlay semitransparente ────────────────────── */
 .header-overlay {
     background: color-mix(in srgb, var(--card) 88%, transparent);
