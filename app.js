@@ -57,16 +57,6 @@ const app = {
             dot.onclick = () => this.applyTheme(dot.dataset.t, true);
         });
 
-        // Archivar – guardar
-        document.getElementById('btn-archive-save').onclick = () => this.archiveList(true);
-        document.getElementById('btn-archive-clear').onclick = () => {
-            if (confirm('¿Limpiar la lista sin guardar en historial?')) {
-                this.products = [];
-                this.renderAll();
-                closeModal('modal-archive');
-            }
-        };
-
         // Modal base – guardar
         document.getElementById('m-save').onclick = () => {
             const n = document.getElementById('m-name').value.trim();
@@ -123,8 +113,7 @@ const app = {
         setTimeout(() => document.getElementById('archive-note').focus(), 80);
     },
 
-    archiveList(save) {
-        if (!save) return;
+    archiveList() {
         const note  = document.getElementById('archive-note').value.trim();
         const total = this.products
             .filter(p => p.checked)
@@ -141,6 +130,14 @@ const app = {
         this.products = [];
         this.renderAll();
         closeModal('modal-archive');
+    },
+
+    clearListOnly() {
+        if (confirm('¿Limpiar la lista sin guardar en historial?')) {
+            this.products = [];
+            this.renderAll();
+            closeModal('modal-archive');
+        }
     },
 
     saveHistory() {
