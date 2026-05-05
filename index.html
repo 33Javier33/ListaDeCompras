@@ -1,341 +1,721 @@
 <!DOCTYPE html>
-<html class="light" lang="es">
+<html lang="es" data-theme="blue">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>LISTA Pro - Smart Sync</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <title>LISTA Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700" rel="stylesheet"/>
-    
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#0057bd",
-              "on-surface": "#203044",
-              "surface": "#f4f6ff",
-              "dark-bg": "#0f172a",
-              "dark-card": "#1e293b",
-            },
-            fontFamily: { "body": ["Plus Jakarta Sans"] },
-          },
-        },
-      }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
+        /* ── Temas (variables CSS) ────────────────────────────────── */
+        :root {
+            --p: #0057bd;  --p-rgb: 0,87,189;
+            --bg: #f0f4ff; --card: #ffffff;
+            --fg: #1e2d42; --fg-m: rgba(30,45,66,.42);
+            --bdr: rgba(0,87,189,.09);
+        }
+        [data-theme="green"]  { --p:#16a34a; --p-rgb:22,163,74;   --bg:#f0fdf4; --card:#fff; --fg:#14532d; --fg-m:rgba(20,83,45,.42);   --bdr:rgba(22,163,74,.1);   }
+        [data-theme="purple"] { --p:#7c3aed; --p-rgb:124,58,237;  --bg:#faf5ff; --card:#fff; --fg:#3b0764; --fg-m:rgba(59,7,100,.42);   --bdr:rgba(124,58,237,.1);  }
+        [data-theme="amber"]  { --p:#b45309; --p-rgb:180,83,9;    --bg:#fffbeb; --card:#fff; --fg:#451a03; --fg-m:rgba(69,26,3,.42);    --bdr:rgba(180,83,9,.1);    }
+        [data-theme="pink"]   { --p:#be185d; --p-rgb:190,24,93;   --bg:#fdf2f8; --card:#fff; --fg:#500724; --fg-m:rgba(80,7,36,.42);    --bdr:rgba(190,24,93,.1);   }
+
+        /* Modo oscuro base */
+        .dark { --bg:#0f172a; --card:#1e293b; --fg:#e2e8f0; --fg-m:rgba(226,232,240,.4); --bdr:rgba(255,255,255,.06); }
+        /* Modo oscuro por tema */
+        .dark[data-theme="green"]  { --bg:#052e16; --card:#0f3d20; }
+        .dark[data-theme="purple"] { --bg:#0d0720; --card:#1a0d38; }
+        .dark[data-theme="amber"]  { --bg:#1c0a00; --card:#2d1500; }
+        .dark[data-theme="pink"]   { --bg:#1f0617; --card:#360c2b; }
+
+        /* ── Base ────────────────────────────────────────────────── */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            transition: background .3s, color .3s;
+        }
         .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .checked-item { opacity: 0.4; filter: grayscale(1); transform: scale(0.98); }
-        .modal-animate { animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* ── Tokens de componente ─────────────────────────────────── */
+        .t-card     { background: var(--card); border: 1px solid var(--bdr); }
+        .t-bg       { background: var(--bg); }
+        .t-btn      { background: var(--p); color: #fff; }
+        .t-btn-soft { background: rgba(var(--p-rgb),.12); color: var(--p); }
+        .t-accent   { color: var(--p); }
+        .t-muted    { color: var(--fg-m); }
+        .t-text     { color: var(--fg); }
+        .t-border   { border-color: var(--bdr); }
+        .t-shadow   { box-shadow: 0 8px 24px rgba(var(--p-rgb),.28); }
+        .t-shadow-sm { box-shadow: 0 3px 12px rgba(var(--p-rgb),.16); }
+        .t-ring:focus-within { box-shadow: 0 0 0 2px rgba(var(--p-rgb),.38); }
+
+        /* ── Items de lista ───────────────────────────────────────── */
+        .checked-item { opacity: .4; filter: grayscale(.65); }
+        .item-in  { animation: itemIn  .2s ease; }
+        .item-out { animation: itemOut .18s ease forwards; }
+        @keyframes itemIn  { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes itemOut { from { opacity:1; } to { opacity:0; transform:scale(.95); } }
+
+        /* ── Modales ─────────────────────────────────────────────── */
+        .modal-bg { background: rgba(0,0,0,.52); backdrop-filter: blur(10px); }
+        .modal-in { animation: mIn .25s cubic-bezier(.4,0,.2,1); }
+        @keyframes mIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── Formularios ──────────────────────────────────────────── */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        input::placeholder, select option:disabled { color: var(--fg-m); }
+        select { color: var(--fg); background: var(--bg); }
+        select option { background: var(--card); color: var(--fg); }
+
+        /* ── Drag & Drop ──────────────────────────────────────────── */
+        .drag-handle {
+            cursor: grab;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .drag-handle:active { cursor: grabbing; }
+        .sortable-ghost   { opacity: .3; background: rgba(var(--p-rgb),.08) !important; border-radius: 2rem; }
+        .sortable-chosen  { opacity: .92; }
+        .sortable-drag    { box-shadow: 0 14px 40px rgba(var(--p-rgb),.28) !important; border-radius: 2rem; }
+
+        /* ── Interacción táctil ───────────────────────────────────── */
+        .press { transition: transform .1s; -webkit-tap-highlight-color: transparent; }
+        .press:active { transform: scale(.9) !important; }
+
+        /* ── Divisor completados ──────────────────────────────────── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 2px 10px;
+            font-size: .6rem;
+            font-weight: 900;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--fg-m);
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--bdr);
+        }
+
+        /* ── Selector de temas ───────────────────────────────────── */
+        .tdot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 2.5px solid transparent;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tdot:active { transform: scale(.82) !important; }
+        .tdot.on {
+            box-shadow: 0 0 0 2px var(--card), 0 0 0 5px currentColor;
+            transform: scale(1.1) !important;
+        }
+
+        /* Botón ghost temático (Modificar/Nuevo) */
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--p);
+            transition: background .15s, color .15s;
+        }
+        .btn-ghost:active { background: var(--p) !important; color: #fff !important; }
+
+        /* Header overlay */
+        .header-overlay {
+            background: color-mix(in srgb, var(--card) 88%, transparent);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .nav-overlay {
+            background: color-mix(in srgb, var(--card) 92%, transparent);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
     </style>
 </head>
-<body class="bg-surface dark:bg-dark-bg text-on-surface dark:text-white min-h-screen">
+<body>
 
-<!-- MODAL MAESTRO: EDITAR/NUEVO PRODUCTO BASE -->
-<div id="main-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-on-surface/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-dark-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-animate text-on-surface dark:text-white">
-        <h2 id="modal-title" class="text-2xl font-black mb-6">Base de Datos</h2>
+<!-- ─────────────────────────────────────────────────────────────
+     MODAL: Producto de la base
+──────────────────────────────────────────────────────────────── -->
+<div id="modal-base" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 modal-bg">
+    <div class="t-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-in t-text">
+        <h2 id="modal-base-title" class="text-2xl font-black mb-6 t-accent">Base de Datos</h2>
         <div class="space-y-4">
-            <input id="modal-name" type="text" placeholder="Nombre del producto" class="w-full bg-surface dark:bg-dark-bg border-none rounded-2xl p-4 font-bold focus:ring-2 focus:ring-primary text-on-surface dark:text-white">
-            <input id="modal-price" type="number" placeholder="Precio sugerido" class="w-full bg-surface dark:bg-dark-bg border-none rounded-2xl p-4 font-bold focus:ring-2 focus:ring-primary text-on-surface dark:text-white">
+            <input id="m-name" type="text" placeholder="Nombre del producto"
+                class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring"
+                autocomplete="off">
+            <input id="m-price" type="number" placeholder="Precio sugerido"
+                class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring">
         </div>
-        <div class="grid grid-cols-1 gap-3 mt-8">
-            <button id="modal-save-btn" class="w-full py-4 rounded-2xl font-black text-white bg-primary shadow-lg shadow-primary/30 active:scale-95 transition-all">Guardar</button>
+        <div class="grid gap-3 mt-8">
+            <button id="m-save" class="w-full py-4 rounded-2xl font-black text-white t-btn t-shadow press">
+                Guardar
+            </button>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="closeModal('main-modal')" class="py-4 rounded-2xl font-bold text-on-surface/40 bg-surface dark:bg-dark-bg text-xs">Cancelar</button>
-                <button id="modal-delete-btn" class="py-4 rounded-2xl font-bold text-red-500 bg-red-500/10 text-xs">Eliminar de Base</button>
+                <button onclick="closeModal('modal-base')" class="py-4 rounded-2xl font-bold t-muted t-bg text-xs press">
+                    Cancelar
+                </button>
+                <button id="m-del" class="py-4 rounded-2xl font-bold text-red-500 bg-red-500/10 text-xs press">
+                    Eliminar
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL CONFIGURACIONES -->
-<div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-on-surface/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-dark-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-animate text-on-surface dark:text-white">
-        <div class="flex items-center justify-between mb-8">
+<!-- ─────────────────────────────────────────────────────────────
+     MODAL: Ajustes
+──────────────────────────────────────────────────────────────── -->
+<div id="modal-settings" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 modal-bg">
+    <div class="t-card w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl modal-in t-text">
+        <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-black">Ajustes</h2>
-            <button onclick="closeModal('settings-modal')" class="text-on-surface/20"><span class="material-symbols-outlined">close</span></button>
+            <button onclick="closeModal('modal-settings')" class="t-muted press">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
+
+        <!-- Selector de temas -->
+        <div class="t-bg rounded-2xl p-4 mb-4">
+            <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-3">Tema de Color</p>
+            <div class="flex items-center gap-3">
+                <button class="tdot on press" data-t="blue"   style="background:#0057bd;color:#0057bd" title="Azul"></button>
+                <button class="tdot press"    data-t="green"  style="background:#16a34a;color:#16a34a" title="Verde"></button>
+                <button class="tdot press"    data-t="purple" style="background:#7c3aed;color:#7c3aed" title="Violeta"></button>
+                <button class="tdot press"    data-t="amber"  style="background:#b45309;color:#b45309" title="Ámbar"></button>
+                <button class="tdot press"    data-t="pink"   style="background:#be185d;color:#be185d" title="Rosa"></button>
+            </div>
+            <div class="flex items-center gap-3 mt-3">
+                <span class="text-[10px] font-black uppercase tracking-widest t-muted">Brillo:</span>
+                <button onclick="app.toggleDark()" class="flex items-center gap-2 t-btn-soft rounded-xl px-3 py-1.5 font-bold text-xs press">
+                    <span class="material-symbols-outlined text-base t-accent">dark_mode</span>
+                    <span id="dark-label" class="t-accent">Modo Noche</span>
+                </button>
+            </div>
+        </div>
+
         <div class="space-y-3">
-            <button onclick="app.shareWhatsApp()" class="w-full flex items-center gap-4 p-4 bg-green-500/10 text-green-600 rounded-2xl font-bold active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">
-                <span class="material-symbols-outlined text-2xl">share</span> WhatsApp
+            <button onclick="app.shareWA()" class="w-full flex items-center gap-4 p-4 bg-green-500/10 text-green-700 dark:text-green-400 rounded-2xl font-bold press text-[10px] uppercase tracking-[.2em]">
+                <span class="material-symbols-outlined text-2xl">share</span> Compartir WhatsApp
             </button>
-            <button onclick="app.toggleDarkMode()" class="w-full flex items-center gap-4 p-4 bg-primary/10 text-primary rounded-2xl font-bold active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">
-                <span class="material-symbols-outlined text-2xl">dark_mode</span> Modo Noche
+            <button onclick="app.exportData()" class="w-full flex items-center gap-4 p-4 t-bg rounded-2xl font-bold press text-[10px] uppercase tracking-[.2em] t-text">
+                <span class="material-symbols-outlined text-2xl t-accent">database</span>
+                <span>Copiar Base</span>
             </button>
-            <button onclick="app.exportData()" class="w-full flex items-center gap-4 p-4 bg-surface dark:bg-dark-bg rounded-2xl font-bold active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">
-                <span class="material-symbols-outlined text-2xl">database</span> Copiar Base
-            </button>
-            <button onclick="app.factoryReset()" class="w-full flex items-center gap-4 p-4 bg-red-500/10 text-red-500 rounded-2xl font-bold active:scale-95 transition-all text-[10px] uppercase tracking-[0.2em]">
+            <button onclick="app.reset()" class="w-full flex items-center gap-4 p-4 bg-red-500/10 text-red-500 rounded-2xl font-bold press text-[10px] uppercase tracking-[.2em]">
                 <span class="material-symbols-outlined text-2xl">delete_forever</span> Reset Total
             </button>
         </div>
     </div>
 </div>
 
-<!-- Header -->
-<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-primary/5">
+<!-- ─────────────────────────────────────────────────────────────
+     Header
+──────────────────────────────────────────────────────────────── -->
+<header class="fixed top-0 w-full z-50 header-overlay" style="border-bottom:1px solid var(--bdr)">
     <div class="max-w-2xl mx-auto flex items-center justify-between px-6 h-20">
-        <h1 class="text-xl font-black tracking-tighter text-primary italic">LISTA PRO</h1>
-        <div class="bg-white dark:bg-dark-card px-5 py-2 rounded-2xl shadow-sm border border-primary/5">
-            <p id="total-price" class="text-lg font-black text-primary">$0</p>
+        <h1 class="text-xl font-black tracking-tighter t-accent italic">LISTA PRO</h1>
+        <div class="t-bg px-5 py-2 rounded-2xl t-shadow-sm" style="border:1px solid var(--bdr)">
+            <p id="total-price" class="text-lg font-black t-accent">$0</p>
         </div>
     </div>
 </header>
 
-<main class="pt-28 pb-32 px-6 max-w-2xl mx-auto">
-    <!-- Entrada Rápida -->
-    <section class="mb-10">
+<!-- ─────────────────────────────────────────────────────────────
+     Contenido Principal
+──────────────────────────────────────────────────────────────── -->
+<main class="pt-28 pb-36 px-5 max-w-2xl mx-auto">
+
+    <!-- Entrada rápida -->
+    <section class="mb-8">
         <div class="flex gap-2">
-            <div class="bg-white dark:bg-dark-card rounded-2xl p-2 flex items-center gap-3 flex-1 shadow-sm border border-primary/10 focus-within:ring-2 focus-within:ring-primary/40 transition-all">
-                <span class="material-symbols-outlined ml-3 text-primary/30">add_shopping_cart</span>
-                <input id="quick-add-input" class="bg-transparent border-none focus:ring-0 w-full text-on-surface dark:text-white font-bold placeholder:text-on-surface/20" placeholder="Añadir producto rápido..." type="text" autocomplete="off"/>
+            <div class="t-card rounded-2xl p-2 flex items-center gap-2 flex-1 t-ring transition-all">
+                <span class="material-symbols-outlined ml-2 t-muted text-xl"
+                    style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">add_shopping_cart</span>
+                <input id="quick-input" type="text" autocomplete="off"
+                    placeholder="Añadir producto..."
+                    class="bg-transparent border-none focus:ring-0 w-full font-bold text-sm t-text"
+                    style="color:var(--fg)">
             </div>
-            <button id="quick-add-btn" class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all">
+            <!-- Guardar en sugeridos -->
+            <button id="btn-save-base" title="Guardar en sugeridos"
+                class="w-13 h-13 t-card rounded-2xl flex items-center justify-center t-shadow-sm press"
+                style="width:3.25rem;height:3.25rem">
+                <span id="icon-save-base" class="material-symbols-outlined t-accent"
+                    style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">bookmark</span>
+            </button>
+            <!-- Añadir a lista -->
+            <button id="btn-quick-add"
+                class="w-14 h-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
                 <span class="material-symbols-outlined">add</span>
             </button>
         </div>
+        <p id="save-feedback" class="hidden text-[10px] font-black t-accent uppercase tracking-widest mt-2 px-1">
+            ✓ Guardado en sugeridos
+        </p>
     </section>
 
-    <!-- Base de Productos (Filtro Dinámico) -->
-    <section class="mb-10 bg-white dark:bg-dark-card rounded-[2.5rem] p-6 shadow-sm border border-primary/5">
-        <div class="flex items-center justify-between mb-4 px-2">
-            <p class="text-[10px] font-black text-primary/40 uppercase tracking-widest leading-none">Productos Sugeridos</p>
-            <span class="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-full uppercase" id="base-count">0 en base</span>
+    <!-- Productos Sugeridos -->
+    <section class="mb-8 t-card rounded-[2.5rem] p-5">
+        <div class="flex items-center justify-between mb-4 px-1">
+            <p class="text-[10px] font-black t-accent uppercase tracking-widest">Productos Sugeridos</p>
+            <span id="base-count" class="text-[10px] font-black t-accent t-btn-soft px-2 py-1 rounded-full">0</span>
         </div>
         <div class="flex gap-2 mb-4">
-            <select id="product-dropdown" class="flex-1 bg-surface dark:bg-dark-bg border-none rounded-2xl p-4 font-bold text-on-surface dark:text-white appearance-none cursor-pointer">
-                <!-- Se llena por JS filtrando los que ya están en la lista -->
+            <select id="dropdown"
+                class="flex-1 border-none rounded-2xl p-3.5 font-bold appearance-none cursor-pointer text-sm"
+                style="color:var(--fg);background:var(--bg)">
             </select>
-            <button id="add-from-base-btn" class="w-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all">
+            <button id="btn-add-base"
+                class="w-14 rounded-2xl flex items-center justify-center t-shadow press t-btn">
                 <span class="material-symbols-outlined">playlist_add</span>
             </button>
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <button onclick="openModal('edit')" class="py-3 bg-surface dark:bg-dark-bg rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all">Modificar</button>
-            <button onclick="openModal('new')" class="py-3 bg-surface dark:bg-dark-bg rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all">Nuevo</button>
+            <button onclick="openBaseModal('edit')"
+                class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">
+                Modificar
+            </button>
+            <button onclick="openBaseModal('new')"
+                class="btn-ghost py-3 rounded-xl text-[10px] font-black uppercase tracking-widest press">
+                Nuevo
+            </button>
         </div>
     </section>
 
-    <!-- Lista Actual -->
-    <section id="shopping-list" class="space-y-4">
-        <!-- Dinámico -->
-    </section>
+    <!-- Lista de compras -->
+    <div id="list-unchecked" class="space-y-3"></div>
+    <div id="list-divider" class="hidden"></div>
+    <div id="list-checked"   class="space-y-3"></div>
+
 </main>
 
-<!-- Nav Inferior -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-24 bg-white/90 dark:bg-dark-card/90 backdrop-blur-2xl border-t border-primary/5 z-50">
-    <div class="flex flex-col items-center text-primary">
+<!-- ─────────────────────────────────────────────────────────────
+     Nav inferior
+──────────────────────────────────────────────────────────────── -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-24 z-50 nav-overlay"
+    style="border-top:1px solid var(--bdr)">
+    <div class="flex flex-col items-center t-accent">
         <span class="material-symbols-outlined text-3xl">format_list_bulleted</span>
     </div>
-    <button id="clear-list-btn" class="w-16 h-16 bg-primary rounded-[2rem] flex items-center justify-center text-white shadow-2xl -translate-y-6 active:scale-75 transition-all">
+    <button id="btn-clear"
+        class="w-16 h-16 rounded-[2rem] flex items-center justify-center text-white -translate-y-6 press t-shadow t-btn">
         <span class="material-symbols-outlined text-3xl">delete_sweep</span>
     </button>
-    <button onclick="openSettings()" class="flex flex-col items-center text-on-surface/20 hover:text-primary transition-colors">
+    <button onclick="openModal('modal-settings')"
+        class="flex flex-col items-center t-muted press">
         <span class="material-symbols-outlined text-3xl">settings</span>
     </button>
 </nav>
 
+<!-- ─────────────────────────────────────────────────────────────
+     Script
+──────────────────────────────────────────────────────────────── -->
 <script>
+// ── Migración desde datos anteriores ──────────────────────────
+function migrateList(raw) {
+    return raw.map((p, i) => ({
+        id:      p.id      ?? (Date.now() - raw.length + i),
+        name:    p.name    ?? '',
+        price:   p.price   ?? 0,
+        checked: p.checked ?? false,
+    }));
+}
+
+// ── App ───────────────────────────────────────────────────────
 const app = {
-    products: JSON.parse(localStorage.getItem('v8_list')) || [],
-    base: JSON.parse(localStorage.getItem('v8_base')) || [
-        { name: 'Leche Colun', price: 1250 },
-        { name: 'Huevos 12u', price: 3400 },
-        { name: 'Pan Molde', price: 2100 },
-        { name: 'Mantequilla', price: 1800 }
+    products: migrateList(
+        JSON.parse(localStorage.getItem('v9_list')) ||
+        JSON.parse(localStorage.getItem('v8_list')) || []
+    ),
+    base: JSON.parse(localStorage.getItem('v9_base')) ||
+          JSON.parse(localStorage.getItem('v8_base')) || [
+        { name:'Leche Colun',  price:1250 },
+        { name:'Huevos 12u',   price:3400 },
+        { name:'Pan Molde',    price:2100 },
+        { name:'Mantequilla',  price:1800 },
     ],
-    currentEditIdx: null,
+    editIdx:  null,
+    sortable: null,
 
+    // ── Arranque ───────────────────────────────────────────────
     init() {
+        this.applyTheme(localStorage.getItem('theme') || 'blue', false);
+        if (localStorage.getItem('dark') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
         this.renderAll();
-        this.setupEvents();
-        if(localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
+        this.bindEvents();
     },
 
-    setupEvents() {
-        const input = document.getElementById('quick-add-input');
-        const btn = document.getElementById('quick-add-btn');
-
-        btn.onclick = () => this.addItemFromInput();
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.addItemFromInput();
-            }
+    bindEvents() {
+        const inp = document.getElementById('quick-input');
+        document.getElementById('btn-quick-add').onclick = () => this.quickAdd();
+        document.getElementById('btn-save-base').onclick  = () => this.saveToBase();
+        document.getElementById('btn-add-base').onclick   = () => this.addFromBase();
+        document.getElementById('btn-clear').onclick      = () => {
+            if (confirm('¿Vaciar la lista actual?')) { this.products = []; this.renderAll(); }
+        };
+        inp.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); this.quickAdd(); }
         });
+
+        // Theme dots
+        document.querySelectorAll('.tdot').forEach(dot => {
+            dot.onclick = () => this.applyTheme(dot.dataset.t, true);
+        });
+
+        // Modal base – guardar
+        document.getElementById('m-save').onclick = () => {
+            const n = document.getElementById('m-name').value.trim();
+            const p = parseInt(document.getElementById('m-price').value) || 0;
+            if (!n) return;
+            if (this.editIdx !== null) {
+                this.base[this.editIdx] = { name: n, price: p };
+            } else {
+                if (!this.base.some(b => b.name.toLowerCase() === n.toLowerCase())) {
+                    this.base.push({ name: n, price: p });
+                }
+            }
+            this.renderAll();
+            closeModal('modal-base');
+        };
+
+        // Modal base – eliminar
+        document.getElementById('m-del').onclick = () => {
+            if (this.editIdx !== null) {
+                this.base.splice(this.editIdx, 1);
+                this.renderAll();
+                closeModal('modal-base');
+            }
+        };
     },
 
-    addItemFromInput() {
-        const input = document.getElementById('quick-add-input');
-        const val = input.value.trim();
-        if (val) {
-            // No agregamos si ya existe con el mismo nombre
-            if(!this.products.some(p => p.name.toLowerCase() === val.toLowerCase())){
-                this.products.unshift({ name: val, price: 0, checked: false });
-            }
-            input.value = '';
+    // ── Añadir desde input rápido ──────────────────────────────
+    quickAdd() {
+        const inp = document.getElementById('quick-input');
+        const val = inp.value.trim();
+        if (!val) return;
+        if (!this.products.some(p => p.name.toLowerCase() === val.toLowerCase())) {
+            const baseItem = this.base.find(b => b.name.toLowerCase() === val.toLowerCase());
+            this.products.unshift({
+                id:      Date.now(),
+                name:    baseItem ? baseItem.name : val,
+                price:   baseItem ? baseItem.price : 0,
+                checked: false,
+            });
             this.renderAll();
-            input.focus();
+        }
+        inp.value = '';
+        inp.focus();
+    },
+
+    // ── Guardar en base desde input rápido ─────────────────────
+    saveToBase() {
+        const inp = document.getElementById('quick-input');
+        const val = inp.value.trim();
+        if (!val) return;
+
+        const alreadyIn = this.base.some(b => b.name.toLowerCase() === val.toLowerCase());
+        if (!alreadyIn) {
+            this.base.push({ name: val, price: 0 });
+            this.renderAll();
+        }
+
+        // Feedback visual
+        const fb = document.getElementById('save-feedback');
+        const icon = document.getElementById('icon-save-base');
+        fb.textContent = alreadyIn ? '— Ya está en sugeridos' : '✓ Guardado en sugeridos';
+        fb.classList.remove('hidden');
+        icon.style.setProperty('font-variation-settings', "'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24");
+        setTimeout(() => {
+            fb.classList.add('hidden');
+            icon.style.removeProperty('font-variation-settings');
+        }, 1800);
+    },
+
+    // ── Guardar en base desde un ítem de la lista ───────────────
+    saveItemToBase(id) {
+        const item = this.products.find(p => p.id === id);
+        if (!item) return;
+        if (!this.base.some(b => b.name.toLowerCase() === item.name.toLowerCase())) {
+            this.base.push({ name: item.name, price: item.price || 0 });
+            this.renderAll();
         }
     },
 
+    // ── Añadir desde dropdown de sugeridos ─────────────────────
+    addFromBase() {
+        const idx = document.getElementById('dropdown').value;
+        if (idx === '' || idx === null) return;
+        const item = this.base[parseInt(idx)];
+        if (!item) return;
+        if (!this.products.some(p => p.name.toLowerCase() === item.name.toLowerCase())) {
+            this.products.unshift({ id: Date.now(), ...item, checked: false });
+            this.renderAll();
+        }
+    },
+
+    // ── Marcar/desmarcar ítem ──────────────────────────────────
+    toggleCheck(id) {
+        const item = this.products.find(p => p.id === id);
+        if (!item) return;
+        item.checked = !item.checked;
+        // Reordenar: primero los no marcados, luego los marcados
+        const unchecked = this.products.filter(p => !p.checked);
+        const checked   = this.products.filter(p =>  p.checked);
+        this.products = [...unchecked, ...checked];
+        this.renderAll();
+    },
+
+    // ── Actualizar precio (sin re-render para no perder foco) ───
+    updatePrice(id, val) {
+        const item = this.products.find(p => p.id === id);
+        if (item) item.price = parseInt(val) || 0;
+        this.save();
+        this.updateTotal();
+    },
+
+    // ── Eliminar ítem ──────────────────────────────────────────
+    removeItem(id) {
+        this.products = this.products.filter(p => p.id !== id);
+        this.renderAll();
+    },
+
+    // ── Render completo ────────────────────────────────────────
     renderAll() {
-        this.renderShoppingList();
+        this.renderList();
         this.renderDropdown();
         this.save();
     },
 
-    renderShoppingList() {
-        const container = document.getElementById('shopping-list');
-        container.innerHTML = '';
-        let total = 0;
+    renderList() {
+        const elUnchecked = document.getElementById('list-unchecked');
+        const elChecked   = document.getElementById('list-checked');
+        const elDivider   = document.getElementById('list-divider');
 
-        this.products.forEach((item, i) => {
-            if(item.checked) total += item.price;
-            const div = document.createElement('div');
-            div.className = `bg-white dark:bg-dark-card rounded-[2rem] p-5 shadow-sm border border-primary/5 flex items-center justify-between transition-all ${item.checked ? 'checked-item' : ''}`;
-            div.innerHTML = `
-                <div class="flex items-center gap-5 flex-1">
-                    <button onclick="app.toggleCheck(${i})" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${item.checked ? 'bg-primary text-white' : 'bg-surface dark:bg-dark-bg text-primary'}">
-                        <span class="material-symbols-outlined">${item.checked ? 'check' : 'add'}</span>
-                    </button>
-                    <div class="flex-1">
-                        <h3 class="font-black text-sm">${item.name}</h3>
-                        <div class="flex items-center text-[10px] font-black text-primary/40 uppercase">
-                            $ <input type="number" value="${item.price}" onchange="app.updatePrice(${i}, this.value)" class="bg-transparent border-none p-0 focus:ring-0 text-xs font-black w-20 ml-1">
-                        </div>
-                    </div>
-                </div>
-                <button onclick="app.removeItem(${i})" class="text-on-surface/10 hover:text-red-500 transition-colors"><span class="material-symbols-outlined">close</span></button>
-            `;
-            container.appendChild(div);
-        });
-        document.getElementById('total-price').textContent = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(total);
+        if (this.sortable) { this.sortable.destroy(); this.sortable = null; }
+
+        elUnchecked.innerHTML = '';
+        elChecked.innerHTML   = '';
+
+        const unchecked = this.products.filter(p => !p.checked);
+        const checked   = this.products.filter(p =>  p.checked);
+
+        unchecked.forEach(item => elUnchecked.appendChild(this.buildItem(item)));
+        checked.forEach(item   => elChecked.appendChild(this.buildItem(item)));
+
+        if (checked.length > 0) {
+            elDivider.className     = 'divider';
+            elDivider.innerHTML     = `<span>Completados · ${checked.length}</span>`;
+        } else {
+            elDivider.className = 'hidden';
+            elDivider.innerHTML = '';
+        }
+
+        this.updateTotal();
+        this.setupSortable();
     },
 
-    // --- LÓGICA DE FILTRO SOLICITADA ---
-    renderDropdown() {
-        const dropdown = document.getElementById('product-dropdown');
-        dropdown.innerHTML = '';
-        
-        // Filtramos: Solo mostrar items de la base que NO estén en la lista de productos actual
-        const availableItems = this.base.filter(baseItem => 
-            !this.products.some(prodItem => prodItem.name.toLowerCase() === baseItem.name.toLowerCase())
-        );
+    buildItem(item) {
+        const inBase    = this.base.some(b => b.name.toLowerCase() === item.name.toLowerCase());
+        const priceVal  = item.price > 0 ? item.price : '';
+        const isChecked = item.checked;
 
-        if (availableItems.length === 0) {
-            dropdown.innerHTML = '<option value="" disabled selected>No hay más items en base...</option>';
-        } else {
-            dropdown.innerHTML = '<option value="" disabled selected>Selecciona para añadir...</option>';
-            availableItems.sort((a,b) => a.name.localeCompare(b.name)).forEach((item) => {
-                // Buscamos el índice original en la base completa para poder añadirlo correctamente
-                const originalIndex = this.base.findIndex(b => b.name === item.name);
-                const opt = document.createElement('option');
-                opt.value = originalIndex;
-                opt.textContent = `${item.name} ($${item.price})`;
-                dropdown.appendChild(opt);
-            });
-        }
-        document.getElementById('base-count').textContent = `${availableItems.length} disponibles`;
+        const div = document.createElement('div');
+        div.className = `t-card rounded-[1.75rem] p-4 flex items-center gap-3 item-in transition-all ${isChecked ? 'checked-item' : ''}`;
+        div.dataset.id = item.id;
+
+        div.innerHTML = `
+            ${!isChecked ? `
+            <div class="drag-handle t-muted flex items-center px-0.5 flex-shrink-0">
+                <span class="material-symbols-outlined text-lg"
+                    style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">drag_indicator</span>
+            </div>` : `<div class="w-5 flex-shrink-0"></div>`}
+
+            <button onclick="app.toggleCheck(${item.id})"
+                class="w-11 h-11 rounded-xl flex items-center justify-center press transition-all flex-shrink-0 ${isChecked ? 't-btn' : 't-btn-soft'}">
+                <span class="material-symbols-outlined text-xl">${isChecked ? 'check' : 'add'}</span>
+            </button>
+
+            <div class="flex-1 min-w-0">
+                <h3 class="font-black text-sm truncate" style="color:var(--fg);${isChecked ? 'text-decoration:line-through;' : ''}">${item.name}</h3>
+                <div class="flex items-center gap-0.5 mt-0.5" style="color:var(--p)">
+                    <span class="text-[10px] font-black">$</span>
+                    <input type="number"
+                        value="${priceVal}"
+                        placeholder="precio"
+                        onchange="app.updatePrice(${item.id}, this.value)"
+                        class="bg-transparent border-none p-0 focus:ring-0 font-black w-20 ml-0.5"
+                        style="color:var(--p);font-size:.65rem">
+                </div>
+            </div>
+
+            ${!inBase ? `
+            <button onclick="app.saveItemToBase(${item.id})" title="Guardar en sugeridos"
+                class="w-9 h-9 rounded-xl flex items-center justify-center press t-btn-soft flex-shrink-0">
+                <span class="material-symbols-outlined text-sm t-accent"
+                    style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20">bookmark</span>
+            </button>` : ''}
+
+            <button onclick="app.removeItem(${item.id})"
+                class="w-9 h-9 rounded-xl flex items-center justify-center press flex-shrink-0 t-muted"
+                style="-webkit-tap-highlight-color:transparent">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        `;
+        return div;
+    },
+
+    setupSortable() {
+        const el = document.getElementById('list-unchecked');
+        if (!el || !el.children.length) return;
+        this.sortable = Sortable.create(el, {
+            animation: 200,
+            handle:    '.drag-handle',
+            ghostClass:  'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass:   'sortable-drag',
+            onEnd: (evt) => {
+                const unchecked = this.products.filter(p => !p.checked);
+                const checked   = this.products.filter(p =>  p.checked);
+                const [moved]   = unchecked.splice(evt.oldIndex, 1);
+                unchecked.splice(evt.newIndex, 0, moved);
+                this.products = [...unchecked, ...checked];
+                this.save();
+            },
+        });
+    },
+
+    updateTotal() {
+        const total = this.products
+            .filter(p => p.checked)
+            .reduce((s, p) => s + (p.price || 0), 0);
+        document.getElementById('total-price').textContent =
+            new Intl.NumberFormat('es-CL', {
+                style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
+            }).format(total);
+    },
+
+    renderDropdown() {
+        const dd = document.getElementById('dropdown');
+        const available = this.base
+            .filter(b => !this.products.some(p => p.name.toLowerCase() === b.name.toLowerCase()))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        dd.innerHTML = available.length === 0
+            ? '<option value="">Sin más disponibles...</option>'
+            : '<option value="">Seleccionar...</option>';
+
+        available.forEach(item => {
+            const i   = this.base.indexOf(item);
+            const opt = document.createElement('option');
+            opt.value       = i;
+            opt.textContent = item.price > 0
+                ? `${item.name}  ·  $${item.price.toLocaleString('es-CL')}`
+                : item.name;
+            dd.appendChild(opt);
+        });
+
+        document.getElementById('base-count').textContent =
+            available.length === 1 ? '1 disponible' : `${available.length} disponibles`;
     },
 
     save() {
-        localStorage.setItem('v8_list', JSON.stringify(this.products));
-        localStorage.setItem('v8_base', JSON.stringify(this.base));
+        localStorage.setItem('v9_list', JSON.stringify(this.products));
+        localStorage.setItem('v9_base',  JSON.stringify(this.base));
     },
 
-    toggleCheck(i) { this.products[i].checked = !this.products[i].checked; this.renderAll(); },
-    updatePrice(i, val) { this.products[i].price = parseInt(val) || 0; this.renderAll(); },
-    
-    removeItem(i) { 
-        this.products.splice(i, 1); 
-        this.renderAll(); // Al remover de la lista, volverá a aparecer en el dropdown automáticamente
+    // ── Tema ───────────────────────────────────────────────────
+    applyTheme(name, save = true) {
+        document.documentElement.dataset.theme = name;
+        if (save) localStorage.setItem('theme', name);
+        document.querySelectorAll('.tdot').forEach(d => {
+            d.classList.toggle('on', d.dataset.t === name);
+        });
     },
 
-    // AJUSTES
-    toggleDarkMode() {
+    toggleDark() {
         const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('darkMode', isDark);
+        localStorage.setItem('dark', isDark);
+        document.getElementById('dark-label').textContent =
+            isDark ? 'Modo Día' : 'Modo Noche';
     },
 
-    shareWhatsApp() {
-        let text = "🛒 *LISTA DE COMPRAS* 🛒\n\n";
-        this.products.forEach(p => text += `${p.checked ? '✅' : '⬜'} *${p.name}* - $${p.price}\n`);
-        text += `\n*TOTAL: ${document.getElementById('total-price').textContent}*`;
+    // ── Utilidades ─────────────────────────────────────────────
+    shareWA() {
+        let text = '🛒 *LISTA DE COMPRAS*\n\n';
+        this.products.forEach(p => {
+            text += `${p.checked ? '✅' : '⬜'} *${p.name}*`;
+            if (p.price > 0) text += ` — $${p.price.toLocaleString('es-CL')}`;
+            text += '\n';
+        });
+        text += `\n💰 *TOTAL: ${document.getElementById('total-price').textContent}*`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
     },
 
     exportData() {
-        const data = JSON.stringify(this.base);
-        navigator.clipboard.writeText(data);
-        alert("Base copiada al portapapeles.");
+        navigator.clipboard.writeText(JSON.stringify(this.base))
+            .then(() => alert('Base copiada al portapapeles.'));
     },
 
-    factoryReset() {
-        if(confirm("¿Resetear App?")) { localStorage.clear(); location.reload(); }
-    }
+    reset() {
+        if (confirm('¿Resetear toda la aplicación? Se borrará todo.')) {
+            localStorage.clear();
+            location.reload();
+        }
+    },
 };
 
-// MODALES
-function openModal(mode) {
-    const modal = document.getElementById('main-modal');
-    const nameInp = document.getElementById('modal-name');
-    const priceInp = document.getElementById('modal-price');
-    const delBtn = document.getElementById('modal-delete-btn');
-    
-    if(mode === 'edit') {
-        const idx = document.getElementById('product-dropdown').value;
-        if(idx === "" || idx === null) return alert("Selecciona un producto de la base disponible");
-        app.currentEditIdx = idx;
-        nameInp.value = app.base[idx].name;
-        priceInp.value = app.base[idx].price;
-        delBtn.classList.remove('hidden');
-    } else {
-        app.currentEditIdx = null;
-        nameInp.value = ""; priceInp.value = "";
-        delBtn.classList.add('hidden');
-    }
-    modal.classList.remove('hidden');
-}
-
-function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+// ── Modales ───────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-document.getElementById('modal-save-btn').onclick = () => {
-    const n = document.getElementById('modal-name').value;
-    const p = parseInt(document.getElementById('modal-price').value) || 0;
-    if(n) {
-        if(app.currentEditIdx !== null) app.base[app.currentEditIdx] = { name: n, price: p };
-        else app.base.push({ name: n, price: p });
-        app.renderAll();
-        closeModal('main-modal');
+// Cerrar modales al tocar fuera
+['modal-base', 'modal-settings'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) closeModal(id);
+    });
+});
+
+function openBaseModal(mode) {
+    const idx = document.getElementById('dropdown').value;
+    const nameInp  = document.getElementById('m-name');
+    const priceInp = document.getElementById('m-price');
+    const delBtn   = document.getElementById('m-del');
+    const title    = document.getElementById('modal-base-title');
+
+    if (mode === 'edit') {
+        if (!idx) { alert('Selecciona primero un producto del dropdown.'); return; }
+        app.editIdx    = parseInt(idx);
+        nameInp.value  = app.base[app.editIdx].name;
+        priceInp.value = app.base[app.editIdx].price || '';
+        delBtn.classList.remove('hidden');
+        title.textContent = 'Editar Producto';
+    } else {
+        app.editIdx    = null;
+        nameInp.value  = '';
+        priceInp.value = '';
+        delBtn.classList.add('hidden');
+        title.textContent = 'Nuevo Producto';
     }
-};
+    openModal('modal-base');
+    setTimeout(() => nameInp.focus(), 50);
+}
 
-document.getElementById('modal-delete-btn').onclick = () => {
-    app.base.splice(app.currentEditIdx, 1);
-    app.renderAll();
-    closeModal('main-modal');
-};
-
-document.getElementById('add-from-base-btn').onclick = () => {
-    const idx = document.getElementById('product-dropdown').value;
-    if(idx !== "" && idx !== null) {
-        app.products.unshift({ ...app.base[idx], checked: false });
-        app.renderAll(); // Esto filtrará el dropdown automáticamente
-    }
-};
-
-document.getElementById('clear-list-btn').onclick = () => {
-    if(confirm("¿Vaciar lista actual?")) { app.products = []; app.renderAll(); }
-};
-
+// ── Iniciar ───────────────────────────────────────────────────
 app.init();
 </script>
 </body>
