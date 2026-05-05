@@ -48,9 +48,6 @@ const app = {
         document.getElementById('btn-quick-add').onclick = () => this.quickAdd();
         document.getElementById('btn-save-base').onclick  = () => this.saveToBase();
         document.getElementById('btn-add-base').onclick   = () => this.addFromBase();
-        document.getElementById('btn-clear').onclick      = () => {
-            if (confirm('¿Vaciar la lista actual?')) { this.products = []; this.renderAll(); }
-        };
         inp.addEventListener('keydown', e => {
             if (e.key === 'Enter') { e.preventDefault(); this.quickAdd(); }
         });
