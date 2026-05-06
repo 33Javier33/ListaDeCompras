@@ -47,12 +47,17 @@
         <p class="text-xs t-muted mb-5">Guarda una copia en el historial y limpia la lista.</p>
 
         <!-- Total de la compra -->
-        <div class="t-btn-soft rounded-2xl p-4 mb-5 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-widest t-muted">Total comprado</p>
-                <p id="archive-total" class="text-2xl font-black t-accent mt-0.5">$0</p>
+        <div class="t-btn-soft rounded-2xl p-4 mb-5 flex items-center justify-between gap-3">
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-1">Total del ticket</p>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-xl font-black t-accent">$</span>
+                    <input id="archive-total" type="number" inputmode="numeric" placeholder="0"
+                        class="bg-transparent border-none p-0 focus:ring-0 font-black text-2xl w-full"
+                        style="color:var(--p)">
+                </div>
             </div>
-            <span class="material-symbols-outlined text-3xl t-accent">receipt_long</span>
+            <span class="material-symbols-outlined text-3xl t-accent flex-shrink-0">receipt_long</span>
         </div>
 
         <!-- Nota -->

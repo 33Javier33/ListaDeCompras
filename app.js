@@ -104,20 +104,16 @@ const app = {
         const total = this.products
             .filter(p => p.checked)
             .reduce((s, p) => s + (p.price || 0), 0);
-        document.getElementById('archive-total').textContent =
-            new Intl.NumberFormat('es-CL', {
-                style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
-            }).format(total);
+        const inp = document.getElementById('archive-total');
+        inp.value = total > 0 ? total : '';
         document.getElementById('archive-note').value = '';
         openModal('modal-archive');
-        setTimeout(() => document.getElementById('archive-note').focus(), 80);
+        setTimeout(() => inp.focus(), 80);
     },
 
     archiveList() {
         const note  = document.getElementById('archive-note').value.trim();
-        const total = this.products
-            .filter(p => p.checked)
-            .reduce((s, p) => s + (p.price || 0), 0);
+        const total = parseInt(document.getElementById('archive-total').value) || 0;
 
         this.history.unshift({
             id:    Date.now(),
