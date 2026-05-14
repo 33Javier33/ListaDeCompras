@@ -102,14 +102,22 @@
         </div>
         <div class="t-bg rounded-2xl p-4 mb-4">
             <p class="text-[10px] font-black uppercase tracking-widest t-muted mb-3">Tema de Color</p>
-            <div class="flex items-center gap-3">
+            <!-- flex-wrap añadido para soportar múltiples temas -->
+            <div class="flex items-center gap-3 flex-wrap">
                 <button class="tdot on press" data-t="blue"   style="background:#0057bd;color:#0057bd" title="Azul"></button>
                 <button class="tdot press"    data-t="green"  style="background:#16a34a;color:#16a34a" title="Verde"></button>
                 <button class="tdot press"    data-t="purple" style="background:#7c3aed;color:#7c3aed" title="Violeta"></button>
                 <button class="tdot press"    data-t="amber"  style="background:#b45309;color:#b45309" title="Ámbar"></button>
                 <button class="tdot press"    data-t="pink"   style="background:#be185d;color:#be185d" title="Rosa"></button>
+                
+                <!-- Nuevos temas profesionales -->
+                <button class="tdot press"    data-t="slate"  style="background:#475569;color:#475569" title="Pizarra"></button>
+                <button class="tdot press"    data-t="teal"   style="background:#0f766e;color:#0f766e" title="Cian Oscuro"></button>
+                <button class="tdot press"    data-t="indigo" style="background:#3730a3;color:#3730a3" title="Índigo"></button>
+                <button class="tdot press"    data-t="wine"   style="background:#881337;color:#881337" title="Vino"></button>
+                <button class="tdot press"    data-t="espresso" style="background:#451a03;color:#451a03" title="Espresso"></button>
             </div>
-            <div class="flex items-center gap-3 mt-3">
+            <div class="flex items-center gap-3 mt-4">
                 <span class="text-[10px] font-black uppercase tracking-widest t-muted">Brillo:</span>
                 <button onclick="app.toggleDark()" class="flex items-center gap-2 t-btn-soft rounded-xl px-3 py-1.5 font-bold text-xs press">
                     <span class="material-symbols-outlined text-base t-accent">dark_mode</span>
