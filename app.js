@@ -16,10 +16,10 @@ const app = {
     ),
     base: JSON.parse(localStorage.getItem('v9_base')) ||
           JSON.parse(localStorage.getItem('v8_base')) || [
-        { name:'Leche Colun',  price:1250 },
-        { name:'Huevos 12u',   price:3400 },
-        { name:'Pan Molde',    price:2100 },
-        { name:'Mantequilla',  price:1800 },
+        { name:'Leche Colun',  price:1250, category: 'Lácteos' },
+        { name:'Huevos 12u',   price:3400, category: 'Otros' },
+        { name:'Pan Molde',    price:2100, category: 'Otros' },
+        { name:'Mantequilla',  price:1800, category: 'Lácteos' },
     ],
     history:  JSON.parse(localStorage.getItem('v9_history')) || [],
     editIdx:  null,
@@ -61,12 +61,13 @@ const app = {
         document.getElementById('m-save').onclick = () => {
             const n = document.getElementById('m-name').value.trim();
             const p = parseInt(document.getElementById('m-price').value) || 0;
+            const c = document.getElementById('m-category').value;
             if (!n) return;
             if (this.editIdx !== null) {
-                this.base[this.editIdx] = { name: n, price: p };
+                this.base[this.editIdx] = { name: n, price: p, category: c };
             } else {
                 if (!this.base.some(b => b.name.toLowerCase() === n.toLowerCase())) {
-                    this.base.push({ name: n, price: p });
+                    this.base.push({ name: n, price: p, category: c });
                 }
             }
             this.renderAll();
@@ -263,7 +264,7 @@ const app = {
 
         const alreadyIn = this.base.some(b => b.name.toLowerCase() === val.toLowerCase());
         if (!alreadyIn) {
-            this.base.push({ name: val, price: 0 });
+            this.base.push({ name: val, price: 0, category: 'Otros' });
             this.renderAll();
         }
 
@@ -284,7 +285,7 @@ const app = {
         const item = this.products.find(p => p.id === id);
         if (!item) return;
         if (!this.base.some(b => b.name.toLowerCase() === item.name.toLowerCase())) {
-            this.base.push({ name: item.name, price: item.price || 0 });
+            this.base.push({ name: item.name, price: item.price || 0, category: 'Otros' });
             this.renderAll();
         }
     },
@@ -463,14 +464,24 @@ const app = {
 
         dd.innerHTML = '<option value="">Seleccionar para añadir...</option>';
 
-        available.forEach(item => {
-            const i   = this.base.indexOf(item);
-            const opt = document.createElement('option');
-            opt.value       = i;
-            opt.textContent = item.price > 0
-                ? `${item.name}  ·  $${item.price.toLocaleString('es-CL')}`
-                : item.name;
-            dd.appendChild(opt);
+        const categories = ['Lácteos', 'Vegetales', 'Carnes', 'Otros'];
+
+        categories.forEach(cat => {
+            const catItems = available.filter(b => (b.category || 'Otros') === cat);
+            if (catItems.length > 0) {
+                const group = document.createElement('optgroup');
+                group.label = `── ${cat} ──`;
+                catItems.forEach(item => {
+                    const i = this.base.indexOf(item);
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = item.price > 0
+                        ? `${item.name}  ·  $${item.price.toLocaleString('es-CL')}`
+                        : item.name;
+                    group.appendChild(opt);
+                });
+                dd.appendChild(group);
+            }
         });
 
         if (inList.length > 0) {
@@ -550,6 +561,7 @@ function openBaseModal(mode) {
     const idx      = document.getElementById('dropdown').value;
     const nameInp  = document.getElementById('m-name');
     const priceInp = document.getElementById('m-price');
+    const catInp   = document.getElementById('m-category');
     const delBtn   = document.getElementById('m-del');
     const title    = document.getElementById('modal-base-title');
 
@@ -558,12 +570,14 @@ function openBaseModal(mode) {
         app.editIdx    = parseInt(idx);
         nameInp.value  = app.base[app.editIdx].name;
         priceInp.value = app.base[app.editIdx].price || '';
+        catInp.value   = app.base[app.editIdx].category || 'Otros';
         delBtn.classList.remove('hidden');
         title.textContent = 'Editar Producto';
     } else {
         app.editIdx    = null;
         nameInp.value  = '';
         priceInp.value = '';
+        catInp.value   = 'Otros';
         delBtn.classList.add('hidden');
         title.textContent = 'Nuevo Producto';
     }
