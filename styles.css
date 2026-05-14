@@ -9,12 +9,19 @@
     --muted: #64748b;
 }
 
-/* Temas de color */
+/* Temas de color Originales */
 [data-theme="blue"]   { --p: #0057bd; --p-rgb: 0, 87, 189; }
 [data-theme="green"]  { --p: #16a34a; --p-rgb: 22, 163, 74; }
 [data-theme="purple"] { --p: #7c3aed; --p-rgb: 124, 58, 237; }
 [data-theme="amber"]  { --p: #b45309; --p-rgb: 180, 83, 9; }
 [data-theme="pink"]   { --p: #be185d; --p-rgb: 190, 24, 93; }
+
+/* Nuevos Temas Profesionales */
+[data-theme="slate"]  { --p: #475569; --p-rgb: 71, 85, 105; }
+[data-theme="teal"]   { --p: #0f766e; --p-rgb: 15, 118, 110; }
+[data-theme="indigo"] { --p: #3730a3; --p-rgb: 55, 48, 163; }
+[data-theme="wine"]   { --p: #881337; --p-rgb: 136, 19, 55; }
+[data-theme="espresso"] { --p: #451a03; --p-rgb: 69, 26, 3; }
 
 /* Modo Oscuro */
 html.dark {
