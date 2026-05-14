@@ -30,14 +30,12 @@
                 autocomplete="off">
             <input id="m-price" type="number" placeholder="Precio sugerido"
                 class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring">
-            <select id="m-category"
+            
+            <!-- Campo de categoría dinámico con Datalist -->
+            <input id="m-category" type="text" list="category-options" placeholder="Categoría (Ej: Abarrotes, Frutas...)"
                 class="w-full t-bg t-text border-none rounded-2xl p-4 font-bold focus:outline-none t-ring"
-                style="color:var(--fg);background:var(--bg)">
-                <option value="Lácteos">Lácteos</option>
-                <option value="Vegetales">Vegetales</option>
-                <option value="Carnes">Carnes</option>
-                <option value="Otros">Otros</option>
-            </select>
+                autocomplete="off">
+            <datalist id="category-options"></datalist>
         </div>
         <div class="grid gap-3 mt-8">
             <button id="m-save" class="w-full py-4 rounded-2xl font-black text-white t-btn t-shadow press">Guardar</button>
