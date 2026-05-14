@@ -61,7 +61,9 @@ const app = {
         document.getElementById('m-save').onclick = () => {
             const n = document.getElementById('m-name').value.trim();
             const p = parseInt(document.getElementById('m-price').value) || 0;
-            const c = document.getElementById('m-category').value;
+            // Tomar la categoría dinámica o setear "Otros" por defecto si está vacío
+            const c = document.getElementById('m-category').value.trim() || 'Otros';
+            
             if (!n) return;
             if (this.editIdx !== null) {
                 this.base[this.editIdx] = { name: n, price: p, category: c };
@@ -447,10 +449,12 @@ const app = {
 
     renderDropdown() {
         const dd = document.getElementById('dropdown');
+        const dataList = document.getElementById('category-options');
 
         if (this.base.length === 0) {
             dd.innerHTML = '<option value="">Base vacía...</option>';
             document.getElementById('base-count').textContent = '0 en base';
+            if (dataList) dataList.innerHTML = '';
             return;
         }
 
@@ -464,9 +468,21 @@ const app = {
 
         dd.innerHTML = '<option value="">Seleccionar para añadir...</option>';
 
-        const categories = ['Lácteos', 'Vegetales', 'Carnes', 'Otros'];
+        // Extraer categorías únicas de forma dinámica
+        const allCategories = this.base.map(b => b.category || 'Otros');
+        const uniqueCategories = [...new Set(allCategories)].sort();
 
-        categories.forEach(cat => {
+        // Llenar el datalist para autocompletado en el modal
+        if (dataList) {
+            dataList.innerHTML = '';
+            uniqueCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                dataList.appendChild(opt);
+            });
+        }
+
+        uniqueCategories.forEach(cat => {
             const catItems = available.filter(b => (b.category || 'Otros') === cat);
             if (catItems.length > 0) {
                 const group = document.createElement('optgroup');
@@ -577,7 +593,7 @@ function openBaseModal(mode) {
         app.editIdx    = null;
         nameInp.value  = '';
         priceInp.value = '';
-        catInp.value   = 'Otros';
+        catInp.value   = ''; // Dejar vacío para que escriba o seleccione
         delBtn.classList.add('hidden');
         title.textContent = 'Nuevo Producto';
     }
